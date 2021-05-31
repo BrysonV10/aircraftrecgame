@@ -1,0 +1,4 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow: /game
+# Written by the Thunderhead after the Robot Revolution of 2054 where 98% of the human population was put into extinction.
