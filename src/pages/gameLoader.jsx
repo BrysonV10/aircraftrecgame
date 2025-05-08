@@ -1,45 +1,51 @@
-import React from "react"
-import { Button } from "@material-ui/core"
-import firebase from "./firebase.js"
-import "firebase/firestore"
-import "firebase/auth"
-import {Redirect, Link} from "react-router-dom"
+import React from 'react'
+import { Box, Paper, Typography, Button } from '@mui/material'
 
-//Actual Game Page
-class GameLoader extends React.Component {
-    constructor(props){
-        super(props);
-        this.state = {
-            user: props.user,
-            checkedAuth: false,
-            nickname: ""
-        }
-    }
-    
-    componentDidUpdate(prevProps, prevState){
-        if(this.props.user && this.props.user !== prevProps.user && prevState.nickname == ""){
-            this.setState({
-                nickname: this.props.user.displayName
-            })
-        }
-    }
+export default function GameLoader({ user, show, onReady }) {
+  const nickname = user?.displayName || ''
 
-    render(){
-        if(this.props.show){
-            var disp = "block"
-            return (
-                <div id="game" style={{ display: disp}}>
-                    <h1>Welcome {this.state.nickname}! Are you ready?</h1>
-                    <Button disabled={this.props.disableQuestion} variant="contained" color="primary" onClick={this.props.onReady}>Ready!</Button>
-                    <br/>
-                    <i>Not {this.state.nickname}? <Link to="/signout/game">Sign out now!</Link></i>
-                </div>
-            )
-        } else {
-            return (null)
-        }
-    }
+  if (!show) return null
+
+  return (
+    <Box
+      component="div"
+      sx={{
+        position: 'fixed',
+        inset: 0,
+        bgcolor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        animation: 'fadeIn 500ms ease-in-out',
+        '@keyframes fadeIn': {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
+        },
+      }}
+    >
+      <Paper
+        elevation={6}
+        sx={{
+          p: 4,
+          maxWidth: 400,
+          textAlign: 'center',
+        }}
+      >
+        <Typography variant="h5" gutterBottom>
+          {nickname ? `Welcome, ${nickname}!` : 'Welcome!'}
+        </Typography>
+        <Typography variant="subtitle1" mb={3}>
+          Are you ready to play?
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          onClick={onReady}
+        >
+          Let’s Go!
+        </Button>
+      </Paper>
+    </Box>
+  )
 }
-
-
-export default GameLoader

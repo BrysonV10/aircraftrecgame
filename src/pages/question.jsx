@@ -1,14 +1,16 @@
 import React from "react"
-import { Button, Typography, Grid } from "@material-ui/core"
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
 import "./Styles.css"
 import OptionButton from "./OptionButton.jsx"
 import ReactModal from "react-modal"
-import CheckIcon from '@material-ui/icons/Check';
-import IncorrectIcon from '@material-ui/icons/Close' 
+import CheckIcon from '@mui/icons-material/Check';
+import IncorrectIcon from '@mui/icons-material/Close' 
 import "animate.css/animate.min.css"
-import {Redirect} from "react-router-dom"
-import firebase from "./firebase.js"
-import "firebase/firestore"
+import {Navigate} from "react-router-dom"
+
+
 class Question extends React.Component {
     constructor(props){
         super(props);
@@ -32,7 +34,6 @@ class Question extends React.Component {
         this.imageLoaded = this.imageLoaded.bind(this)
         this.continue = this.continue.bind(this)
         this.playGongAudio = this.playGongAudio.bind(this)
-        this.db = firebase.firestore()
     }
     componentDidMount(){
         console.log("Question Mounted")
@@ -101,58 +102,10 @@ class Question extends React.Component {
         if (this.props.score.length === 10) {
             //save score and redirect
             let score = this.props.score.reduce((a, b) => a + b, 0)
-            let madeLeaderboard = false;
-            this.db.collection("leaderboard").where("score", ">", score).get().then((querySnapshot) => {
-                console.log(querySnapshot.size)
-                if (querySnapshot.size < 10) {
-                    this.db.collection("leaderboard").doc(this.props.user.displayName).get().then((doc) => {
-                        if (doc.exists) {
-                            if (doc.data().score < score) {
-                                //THEN update score
-                                madeLeaderboard = true;
-                                this.db.collection("leaderboard").doc(this.props.user.displayName).set({
-                                    name: this.props.user.displayName,
-                                    score: score
-                                }).then(() => {
-                                    this.props.saveScoreAtRoot({ score: score, leaderboard: madeLeaderboard });
-                                    this.setState({
-                                        needToRedirect: <Redirect to={"/leaderboard"} />
-                                    })
-                                }).catch((err) => {
-                                    alert("Oops! Something went wrong when attempting to submit your score! Sorry! Please reload and try again. ")
-                                })
-                            } else {
-                                this.props.saveScoreAtRoot({ score: score, leaderboard: madeLeaderboard });
-                                    this.setState({
-                                        needToRedirect: <Redirect to={"/leaderboard"} />
-                                    })
-                            }
-                        } else {
-                            //document doesn't exist, but they still got to the leaderboard
-                            madeLeaderboard = true;
-                            this.db.collection("leaderboard").doc(this.props.user.displayName).set({
-                                name: this.props.user.displayName,
-                                score: score
-                            }).then(() => {
-                                this.props.saveScoreAtRoot({ score: score, leaderboard: madeLeaderboard });
-                                this.setState({
-                                    needToRedirect: <Redirect to={"/leaderboard"} />
-                                })
-
-                            }).catch((err) => {
-                                alert("Oops! Something went wrong when attempting to submit your score! Sorry! Please reload and try again. ")
-                            })
-                        }
-                    })
-
-                } else {
-                    this.props.saveScoreAtRoot({ score: score, leaderboard: false })
-                    this.setState({
-                        needToRedirect: <Redirect to={"/leaderboard"} />
-                    })
-                }
+            this.props.saveScoreAtRoot({ score: score, leaderboard: false })
+            this.setState({
+                needToRedirect: <Navigate replace to={"/leaderboard"} />
             })
-
 
         } else {
             this.setState({
@@ -172,10 +125,8 @@ class Question extends React.Component {
         }
         
         if(this.props.loading){
-            var imageIsLoading = true
             return (null)
         } else {
-            var imageIsLoading = false
         var score = this.props.score.reduce((a, b) => a + b, 0);
         var progress = this.props.score.length;
         

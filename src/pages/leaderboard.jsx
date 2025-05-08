@@ -1,13 +1,16 @@
 import React from "react"
-import {Grid, Button, CircularProgress} from "@material-ui/core"
+
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import CircularProgress from '@mui/material/CircularProgress';
 import {Link} from "react-router-dom"
 import ImageFadeIn from "react-image-fade-in"
 import {Fade, Flip} from "react-reveal"
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import firebase from "./firebase.js"
-import "firebase/firestore"
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import Plane from "./plane.jsx"
 import Footer from "./footer.jsx"
+import "./Styles.css"
+
 class Leaderboard extends React.Component {
     constructor(props){
         super(props);
@@ -23,6 +26,7 @@ class Leaderboard extends React.Component {
             planesLoaded: false,
             planesData: []
         }
+        this.leaderboardRef = React.createRef();
         try {
             let data = this.props.getScore()
             this.state.score = data.score
@@ -34,40 +38,23 @@ class Leaderboard extends React.Component {
         } catch(err){
             console.log("Non-breaking error: " + err)
         }
-        console.log("everuthing else")
-        this.db = firebase.firestore()
-        }
 
-    componentDidMount(){
-        this.db.collection("leaderboard").limit(10).orderBy("score", "desc").get().then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                this.setState({
-                    leaderLoaded: true,
-                    leaderboardArr: this.state.leaderboardArr.concat({name: doc.data().name, score: doc.data().score})
-                })
-            })
-            
-        }).catch((err) => {
-            alert("Failed to get leaderboard information. Please check your internet connection.");
-            console.error(err)
-        })
-        if(this.state.showScore){
-            console.log("getting planes")
-            this.db.collection("planes").where("id", "in", this.state.planeIdsToShow).get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    let data = doc.data()
-                    this.setState({
-                        planesData: this.state.planesData.concat({name: data.name, description: data.description, img: data.imgurl, imgsrc: data.imgsrc})
-                    })
-                })
-                }).then(() => {
-                    this.setState({
-                        planesLoaded: true
-                    })
-            })
+        fetch(import.meta.env.VITE_PLANES_JSON_URL).then((response) => {
+            if(response.ok){
+                return response.json();
+            }
         }
-        
+        ).then((planedata) => {
+            this.state.planesData = planedata;
+            this.state.planesLoaded = true;
+            this.setState({planesData: planedata})
+            return;
+        }
+        ).catch((error) => {
+            console.error("Error fetching planes.json: ", error);
+        });
     }
+
     imageLoaded(){
         setTimeout(() => {
             this.setState({ disp: "block"})
@@ -75,22 +62,31 @@ class Leaderboard extends React.Component {
         
     }
     scrollToLeaderboard(){
-        this.refs.leaderboardScroll.scrollIntoView()
+        this.leaderboardRef.current.scrollIntoView()
+    }
+
+    componentDidMount(){
+        if(window.localStorage.getItem("score") != null){
+            let scoreData = window.localStorage.getItem("score");
+            scoreData = JSON.parse(scoreData);
+            this.setState({
+                score: scoreData.score,
+                showScore: true,
+                madeLeaderboard: scoreData.leaderboard,
+                planeIdsToShow: scoreData.ids
+            })
+            window.localStorage.removeItem("score");
+        }
     }
     render(){
+        console.log("Leaderboard props: ", this.props);
+        console.log("Leaderboard state: ", this.state);
         if(this.state.showScore){
             var scoreStyle = "inline";
             var topMessage = "Game Over"
         } else {
             var scoreStyle = "none"
             var topMessage = "WWII Aircraft Leaderboard"
-        }
-        if(this.state.leaderLoaded){
-            var leaderboardComps = this.state.leaderboardArr.map((user, key) => {
-                return ((<li key={user.name + user.score.toString() + key.toString()}>{user.name} - {user.score.toString()}</li>))
-            })
-        } else {
-            var leaderboardComps = <CircularProgress/>
         }
        
         if(this.state.disp == 'block' && this.state.showScore == true){
@@ -99,7 +95,7 @@ class Leaderboard extends React.Component {
         } else {
             var planesToShowStyle = "none";
         }
-        if(this.state.planesLoaded){
+        if(this.state.planeIdsToShow.length > 0){
             var planesComp = this.state.planesData.map((plane, key) => {
                 return ((<Plane key={key} data={plane}/>));
             })
@@ -116,7 +112,6 @@ class Leaderboard extends React.Component {
         } else {
             mobileComp.brComp = null;
         }
-        console.log(mobileComp)
         return (
             <div>
                 <div id="bg-contain">
@@ -124,41 +119,39 @@ class Leaderboard extends React.Component {
                 </div>
                 <Grid className="text-contain" container direction="column" justify="space-evenly" alignItems="center">
                     <div id="text">
-                        <Fade bottom>
-                            <h1>{topMessage}</h1>
-                            <h6 style={{ display: scoreStyle}}>You scored <strong>{this.state.score}</strong> points!</h6>
-                        </Fade>
+                        
+                            <h1 className="fadeIn1s">{topMessage}</h1>
+                            <h6 className="fadeIn2s" style={{ display: scoreStyle}}>You scored <strong>{this.state.score}</strong> points!</h6>
+                        
                     </div>
-                    <Fade bottom style={{ maxHeight: "120px" }}>
+                    <div style={{ maxHeight: "120px" }}>
                         <Grid item style={{ paddingTop: "30px" }}>
-                            <Button className="fadeOnHover" variant="contained" component={Link} to={"/game"}>Play Now!</Button>
+                            <Button className="fadeOnHover fadeIn3s" variant="contained" component={Link} to={"/game"}>Play Now!</Button>
                         </Grid>
                         <Grid item style={{ paddingTop: "30px"}}>
-                            <Button className="fadeOnHover" variant="contained" onClick={this.scrollToLeaderboard.bind(this)}>
+                            <Button className="fadeOnHover fadeIn3s" variant="contained" onClick={this.scrollToLeaderboard.bind(this)}>
                                 <ArrowDownwardIcon/>
                                 Jump to Leaderboard
                                 <ArrowDownwardIcon/>
                             </Button>
                         </Grid>
                         <Grid item style={{ paddingTop: "30px"}}>
-                            <Button variant="contained" component={Link} to={"/"}>Back Home</Button>
+                            <Button className="fadeOnHover fadeIn3s" variant="contained" component={Link} to={"/"}>Back Home</Button>
                         </Grid>
-                    </Fade>
+                    </div>
                 </Grid>
                 {mobileComp.brComp}
                 <center>
                 <Grid style={{display: planesToShowStyle,  marginTop: mobileComp.marginComp, width: "90vw"}} className="planesYouSaw" container direction="column" justify="space-evenly" alignItems="center">
                     <Grid item>
-                        <Fade bottom>
+                        <div>
                             <center>
-                            <h1>Planes you encountered</h1>
+                            <h1 style={{ fontSize: "clamp(24px, 6vw, 50px)",backgroundColor: "rgba(122, 122, 122, 0.8)", width: "80vw", textAlign: "center", borderStyle: "solid", borderWidth: "1px", boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)"}}><i>PLANES YOU ENCOUNTERED</i></h1>
                             </center>
-                        </Fade>
+                        </div>
                     </Grid>
                     <Grid container item direction="column" justify="space-evenly" alignItems="center">
-                        <Flip cascade bottom>
                         {planesComp}
-                        </Flip>
                     </Grid>
                 </Grid>
                 </center>
@@ -166,15 +159,22 @@ class Leaderboard extends React.Component {
                 <Grid style={{display: this.state.disp}} className="leaderboard" container direction="column" justify="space-evenly" alignItems="center">
                     <Grid item container style={{ marginTop: "7vh", backgroundColor: "rgba(113, 156, 185, 0.61)", width: "90vw", margin: "auto"}} direction="column" justify="space-evenly" alignItems="center">
                         <Grid item>
-                            <h1 ref="leaderboardScroll" style={{ fontSize: "clamp(24px, 6vw, 50px)",backgroundColor: "rgba(122, 122, 122, 0.8)", width: "80vw", textAlign: "center", borderStyle: "solid", borderWidth: "1px", boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)"}}><i>LEADERBOARD</i></h1>
+                            <h1 ref={this.leaderboardRef} style={{ fontSize: "clamp(24px, 6vw, 50px)",backgroundColor: "rgba(122, 122, 122, 0.8)", width: "80vw", textAlign: "center", borderStyle: "solid", borderWidth: "1px", boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)"}}><i>LEADERBOARD</i></h1>
                         </Grid>
                         <Grid item container alignItems="center" >
                             <Flip cascade bottom>
                             <ol style={{ paddingLeft: "5.5vw", fontSize: "clamp(20px, 4.5vw,30px)"}} className="leaderboard-list">
-                                {leaderboardComps}
+                                <li>John K. - 9703</li>
+                                <li>Alex G. - 8719</li>
+                                <li>VanZAviation - 6761</li>
+                                <li>Fillinger - 6547</li>
+                                <li>Bryson - 3840</li>
+                                <li>Connor - 3759</li>
                             </ol>
                             </Flip>
                         </Grid>
+                        <p><i>You're viewing an archived version of the leaderboard, new scores will no longer submit.</i></p>
+
                     </Grid> 
                 </Grid>
                 <br/>

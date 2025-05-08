@@ -17,21 +17,25 @@
     font-size: 1.7rem;
     background-color: rgba(196, 196, 196, 0.7);
     z-index: 2;
-    width: 80%;
+    width:80%;
     padding: 20px;
+    margin:auto;
     text-align: center;
     letter-spacing: 0.2rem;
 }
 
 .text-contain {
     position: absolute;
+    display:block;
     top: 10%;
-    
+    width:100%;
+    margin:auto;
 }
 
 .fadeOnHover {
     background-color: rgba(196, 196, 196, 0.6);
     transition: 0.5s;
+    width:100%;
 }
 
 .fadeOnHover:hover {
@@ -59,7 +63,10 @@
 }
 
 .about-para {
+    text-align:center;
     font-size: 1.2rem;
+    padding-right:5%;
+    padding-left:5%;
 }
 
 .about-project {
@@ -158,5 +165,27 @@
 }
 .planeImgEnd {
     max-width: 100%;
-    margin-right: 2vw;
+    max-height: 15rem;
+    margin:auto;
 }
+
+
+.fadeIn1s {
+    animation: fade 1s ease-in;
+}
+
+.fadeIn2s {
+    animation: fade 2s ease-in;
+}
+.fadeIn3s {
+    animation: fade 3s ease-in;
+}
+  
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }

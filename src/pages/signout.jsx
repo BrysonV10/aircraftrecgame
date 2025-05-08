@@ -1,18 +1,4 @@
-import firebase from "./firebase.js"
-import "firebase/auth"
-
+// shouldn't be used, but here for compatibility
 export default function SignOut(props){
-    firebase.auth().signOut().then(() => {
-        let signedout = true
-    }).catch((err) =>{
-        let signedout = false
-        return (
-            <h1>Error: {err}</h1>
-        )
-    })
-    return (
-        <>
-        {props.moveTo}
-        </>
-    )
+    <>{props.moveTo}</>
 }

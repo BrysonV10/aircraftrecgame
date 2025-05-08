@@ -1,0 +1,72 @@
+.plane-card {
+    /* fluid width up to a max, centered */
+    width: 95%;
+    max-width: 800px;
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  /* media‑query: on wider screens, go side‑by‑side */
+  @media (min-width: 768px) {
+    .plane-card {
+      flex-direction: row;
+      max-width: 1200px;
+    }
+    .plane-card__media,
+    .plane-card__body {
+      flex: 1;
+    }
+  }
+  
+  .plane-card__media {
+    position: relative;
+    /* keep image from getting too tall */
+    max-height: 400px;
+  }
+  
+  .plane-card__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  .plane-card__imgsrc {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.85);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+  
+  .plane-card__body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .plane-card__title {
+    margin: 0;
+    font-size: 2rem;
+    color: #222;
+  }
+  
+  .plane-card__desc {
+    margin: 1rem 0;
+    line-height: 1.6;
+    color: #444;
+  }
+  
+  .plane-card__source {
+    margin-top: auto;
+    font-size: 0.875rem;
+    color: #666;
+  }
+  

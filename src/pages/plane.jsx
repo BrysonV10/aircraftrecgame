@@ -1,30 +1,33 @@
-import React from "react"
-import {Grid} from "@material-ui/core"
-import "./Styles.css"
+import React from 'react';
+import './PlaneCard.css';
 
-class Plane extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+export default function Plane(props) {
+  try{
+    console.log("Plane props: ", props);
+  const { name, imgurl, imgsrc, infoSource, description } = props.data;
+  
+  return (
+    <div className="plane-card">
+      <div className="plane-card__media">
+        <img
+          className="plane-card__image"
+          src={imgurl}
+          alt={name}
+        />
+        <span className="plane-card__imgsrc">Image via {imgsrc}</span>
+      </div>
 
-    render(){
-        
-        return (
-            <>
-                <Grid style={{ width: "85vw"}} item container className="planeComp" direction="row" justify="space-evenly" alignItems="center" spacing={3}>
-                    <Grid item xs={3} className="imgContainerEnd">
-                        <img alt={this.props.data.name} src={this.props.data.img} className="planeImgEnd"/>
-                    </Grid>
-                    <Grid item xs={9}>
-                        <h6>{this.props.data.name}</h6>
-                        <p>{this.props.data.description}</p>
-                        <i>Image from {this.props.data.imgsrc}</i>
-                    </Grid>
-                </Grid>
-                <br/>
-            </>
-        )
-    }
+      <div className="plane-card__body">
+        <h2 className="plane-card__title">{name}</h2>
+        <p className="plane-card__desc">{description}</p>
+        <p className="plane-card__source">
+          <strong>Source:</strong> {infoSource}
+        </p>
+      </div>
+    </div>
+  );
+} catch(e){
+  //console.log("Error in Plane component: ", e);
+  return null;
 }
-
-export default Plane
+}
